@@ -1,7 +1,13 @@
-README (Draft Skeleton)
-ATLAS
+Project: ATC Transcript Parser
 
-Air Traffic Language Analysis System
+(Language → Structure)
+
+What it is
+
+A system that converts raw ATC transcripts into structured, machine-interpretable representations of operational intent.
+
+README (Draft Skeleton)
+Name: ATLAS - Air Traffic Language Analysis System
 
 Overview
 ATLAS is a structured parsing engine for air traffic control (ATC) communications. It transforms natural language phraseology into formal, machine-readable representations of operational intent.
