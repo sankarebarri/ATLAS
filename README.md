@@ -45,3 +45,46 @@ Context-aware parsing
 Audio-to-structure pipeline
 
 Multilingual ATC adaptation
+
+
+## Detailed Parsing Examples
+
+ATLAS converts raw ATC transcripts into structured, machine-readable data.
+
+### Example Input
+Air France 345, descend flight level 180, reduce speed to 250 knots
+
+
+### Example Output
+```json
+{
+  "callsign": "AFR345",
+  "instruction": [
+    {
+      "type": "altitude",
+      "action": "descend",
+      "value": 180,
+      "unit": "FL"
+    },
+    {
+      "type": "speed",
+      "action": "reduce",
+      "value": 250,
+      "unit": "knots"
+    }
+  ]
+}
+Coverage
+IFR and VFR procedures
+
+Radar vectors and conditional clearances
+
+Readbacks and corrections
+
+Block altitudes and “maintain own separation”
+
+Why this matters
+ATC communications are safety-critical and semi-formal. Most NLP systems treat them as generic speech. ATLAS formalises operational semantics, allowing structured analysis and downstream reasoning.
+
+
+---
