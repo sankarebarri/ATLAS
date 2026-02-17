@@ -1,65 +1,41 @@
-Project: ATC Transcript Parser
+# ATLAS
+Air Traffic Language Analysis System
 
-(Language → Structure)
+ATLAS is a research-first system for converting ATC transcripts into structured, machine-readable operational intent.
 
-What it is
+## Purpose
+ATC phraseology is compressed, safety-critical, and context-dependent. ATLAS focuses on deterministic, auditable language parsing so downstream systems can reason over clearances, restrictions, and readbacks.
 
-A system that converts raw ATC transcripts into structured, machine-interpretable representations of operational intent.
+## Scope (v0)
+- Text transcripts first. Audio ingestion comes later.
+- English ICAO/FAA-aligned phraseology.
+- High-frequency instruction classes before long-tail coverage.
+- Single-utterance parsing first, multi-turn context second.
 
-README (Draft Skeleton)
-Name: ATLAS - Air Traffic Language Analysis System
+## Non-Goals (v0)
+- Operational ATC automation or certified decision authority.
+- End-to-end speech recognition.
+- Full trajectory conflict prediction.
 
-Overview
-ATLAS is a structured parsing engine for air traffic control (ATC) communications. It transforms natural language phraseology into formal, machine-readable representations of operational intent.
+## Core Pipeline
+`ingest -> normalize -> segment -> parse -> validate -> export`
 
-Problem
-ATC communications are semi-formal, safety-critical, and highly structured. Most NLP systems treat them as generic speech. This loses operational semantics such as clearance type, instruction parameters, and contextual dependencies.
+## Core Capabilities
+- callsign extraction and normalization
+- instruction segmentation for multi-intent utterances
+- slot extraction for altitude, speed, heading, frequency, runway, waypoint
+- clearance/intent typing
+- readback detection and mismatch surfacing
+- explicit fallback states (`unknown`, `ambiguous`, `conflict`)
 
-Objective
-To formalise ATC phraseology as a computational grammar capable of deterministic parsing, hybrid ML classification, and structured reasoning.
-
-Core Capabilities
-
-Callsign extraction
-
-Instruction segmentation
-
-Parameter normalisation (altitude, heading, speed, frequency)
-
-Clearance type classification
-
-Readback detection
-
-Design Philosophy
-
-Deterministic baseline first
-
-Domain grammar > generic NLP
-
-Explainability over black-box prediction
-
-Future Work
-
-Context-aware parsing
-
-Audio-to-structure pipeline
-
-Multilingual ATC adaptation
-
-
-## Detailed Parsing Examples
-
-ATLAS converts raw ATC transcripts into structured, machine-readable data.
-
-### Example Input
-Air France 345, descend flight level 180, reduce speed to 250 knots
-
-
-### Example Output
+## Output Contract (Suggested `v0.1`)
 ```json
 {
+  "schema_version": "atlas.intent.v0.1",
+  "utterance_id": "optional-id",
+  "speaker": "ATC",
   "callsign": "AFR345",
-  "instruction": [
+  "instructions": [
     {
       "type": "altitude",
       "action": "descend",
@@ -70,21 +46,71 @@ Air France 345, descend flight level 180, reduce speed to 250 knots
       "type": "speed",
       "action": "reduce",
       "value": 250,
-      "unit": "knots"
+      "unit": "kt"
     }
-  ]
+  ],
+  "confidence": 0.96,
+  "status": "ok"
 }
-Coverage
-IFR and VFR procedures
+```
 
-Radar vectors and conditional clearances
+`status` values:
+- `ok`
+- `unknown`
+- `ambiguous`
+- `conflict`
 
-Readbacks and corrections
+## Minimal Example
+Input:
+`Air France 345, descend flight level 180, reduce speed to 250 knots.`
 
-Block altitudes and “maintain own separation”
+Expected parse:
+- callsign: `AFR345`
+- intent: altitude + speed instruction
+- normalized slots: `FL180`, `250 kt`
 
-Why this matters
-ATC communications are safety-critical and semi-formal. Most NLP systems treat them as generic speech. ATLAS formalises operational semantics, allowing structured analysis and downstream reasoning.
+## Edge-Case Example
+Input:
+`Speedbird 42, descend one seven zero... correction, maintain one nine zero until LAM, then descend one five zero.`
 
+Expected parse behavior:
+- detect amendment (`correction`)
+- preserve temporal condition (`until LAM`)
+- output ordered instructions with explicit update semantics
 
----
+## Evaluation Priorities
+- intent precision/recall/F1
+- slot extraction F1
+- readback mismatch detection quality
+- severity-weighted error tracking for high-risk intents
+- calibration and threshold behavior under ASR noise
+
+## Interoperability
+ATLAS is independently usable and ecosystem-compatible.
+
+Typical integrations:
+- consume transcript input from ASR pipelines
+- provide structured intent outputs to trajectory/conflict systems
+- exchange versioned contracts with related research tools
+
+Contract references:
+- current execution plan: `roadmap.md`
+- contract and docs milestones: `roadmap.md#phase-0-contract-and-scope`
+
+## Research Claims vs Production Claims
+Research claims:
+- deterministic grammar baselines improve auditability
+- structured outputs can be benchmarked with transparent metrics
+
+Production claims:
+- none yet
+- operational use requires validation, monitoring, safety case, and regulatory alignment
+
+## Safety and Limitations
+- Research/prototype component, not certified ATM software.
+- Low-confidence outputs must not be promoted without fallback policy.
+- Performance depends on transcript quality and phraseology coverage.
+- Regional procedures and non-standard phraseology require targeted tests.
+
+## Project Roadmap
+Execution milestones are in `roadmap.md`.
