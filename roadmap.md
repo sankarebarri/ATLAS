@@ -77,5 +77,6 @@ Legend:
 ## Next Up (Immediate)
 - [x] Build first gold slice in `data/gold/`
 - [x] Add parser trace metadata to every instruction
+- [x] Add hand-curated ASR-like noisy subset in `data/gold/`
 - [ ] Add CI workflow for tests + metrics
 - [x] Add waypoint and squawk parser support

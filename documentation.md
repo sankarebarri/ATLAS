@@ -29,12 +29,17 @@ pytest -q
 ## Run Evaluation
 ```bash
 python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
+python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl
 ```
 This reports:
 - intent precision/recall/F1
 - slot precision/recall/F1
 - status accuracy
 - callsign accuracy
+
+Dataset notes:
+- `data/gold/v0_slice.jsonl`: cleaner synthetic baseline.
+- `data/gold/v0_noisy_slice.jsonl`: hand-curated ASR-like noise/variant set.
 
 ## Development Workflow
 1. Pick one unchecked task in `roadmap.md`.
