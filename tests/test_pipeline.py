@@ -6,6 +6,10 @@ def test_parses_altitude_and_speed_with_callsign() -> None:
     assert out["callsign"] == "AFR345"
     assert out["status"] == "ok"
     assert [item["type"] for item in out["instructions"]] == ["altitude", "speed"]
+    for item in out["instructions"]:
+        assert item["trace"]["rule"] == item["type"]
+        assert item["trace"]["segment"]
+        assert item["trace"]["pattern"]
 
 
 def test_parses_heading_frequency_and_runway() -> None:

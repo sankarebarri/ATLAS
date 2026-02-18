@@ -35,7 +35,12 @@
   "value": 180,
   "unit": "FL",
   "condition": null,
-  "update": "new"
+  "update": "new",
+  "trace": {
+    "rule": "altitude",
+    "pattern": "\\b(DESCEND|CLIMB|MAINTAIN)\\b\\s+(?:FLIGHT LEVEL\\s+)?(\\d{2,3})\\b",
+    "segment": "DESCEND FLIGHT LEVEL 180"
+  }
 }
 ```
 

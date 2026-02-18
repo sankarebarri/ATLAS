@@ -14,6 +14,7 @@ class Instruction:
     unit: str | None = None
     condition: str | None = None
     update: Literal["new", "replace"] = "new"
+    trace: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(slots=True)
@@ -41,6 +42,7 @@ class ParseResult:
                     "unit": item.unit,
                     "condition": item.condition,
                     "update": item.update,
+                    "trace": item.trace,
                 }
                 for item in self.instructions
             ],

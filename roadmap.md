@@ -34,7 +34,7 @@ Legend:
 - [x] Implement instruction parsing: climb_rate
 - [x] Add basic amendment/correction handling
 - [x] Emit explicit fallback states for failed parses
-- [~] Ensure no silent parse failures with traceable parser decisions
+- [x] Ensure no silent parse failures with traceable parser decisions
 
 ## Phase 2: Evaluation and CI Gates
 - [ ] Build first gold dataset slice (100-300 utterances)
@@ -76,6 +76,6 @@ Legend:
 
 ## Next Up (Immediate)
 - [ ] Build first gold slice in `data/gold/`
-- [ ] Add parser trace metadata to every instruction
+- [x] Add parser trace metadata to every instruction
 - [ ] Add CI workflow for tests + metrics
 - [x] Add waypoint and squawk parser support

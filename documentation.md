@@ -65,10 +65,10 @@ git push
 ## Current Baseline Capabilities
 - callsign extraction/normalization
 - deterministic parsing for altitude, speed, heading, frequency, runway, waypoint, squawk, hold, direct, climb_rate
+- per-instruction trace metadata (`rule`, `pattern`, `segment`) for parser auditability
 - fallback statuses: `ok`, `unknown`, `conflict`
 - basic amendment detection via `CORRECTION`
 
 ## Known Gaps
 - no gold dataset yet
 - no CI metrics/regression gates yet
-- limited trace/audit output details

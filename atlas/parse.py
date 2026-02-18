@@ -28,6 +28,13 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
     if until_match:
         condition = f"until {until_match.group(1)}"
 
+    def build_trace(rule: str, pattern: str) -> dict[str, str]:
+        return {
+            "rule": rule,
+            "pattern": pattern,
+            "segment": segment,
+        }
+
     for pattern in ALTITUDE_PATTERNS:
         match = pattern.search(segment)
         if match:
@@ -41,6 +48,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                     unit="FL",
                     condition=condition,
                     update="replace" if correction_mode else "new",
+                    trace=build_trace("altitude", pattern.pattern),
                 )
             )
 
@@ -53,6 +61,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=int(speed_match.group(2)),
                 unit="kt",
                 update="replace" if correction_mode else "new",
+                trace=build_trace("speed", SPEED_PATTERN.pattern),
             )
         )
 
@@ -66,6 +75,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=int(heading_match.group(2)),
                 unit="deg",
                 update="replace" if correction_mode else "new",
+                trace=build_trace("heading", HEADING_PATTERN.pattern),
             )
         )
 
@@ -78,6 +88,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=float(freq_match.group(1)),
                 unit="MHz",
                 update="replace" if correction_mode else "new",
+                trace=build_trace("frequency", FREQ_PATTERN.pattern),
             )
         )
 
@@ -90,6 +101,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=runway_match.group(1),
                 unit=None,
                 update="replace" if correction_mode else "new",
+                trace=build_trace("runway", RUNWAY_PATTERN.pattern),
             )
         )
 
@@ -102,6 +114,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=direct_match.group(1),
                 unit=None,
                 update="replace" if correction_mode else "new",
+                trace=build_trace("direct", DIRECT_PATTERN.pattern),
             )
         )
 
@@ -114,6 +127,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=waypoint_match.group(1),
                 unit=None,
                 update="replace" if correction_mode else "new",
+                trace=build_trace("waypoint", WAYPOINT_PATTERN.pattern),
             )
         )
 
@@ -126,6 +140,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=squawk_match.group(1),
                 unit="octal",
                 update="replace" if correction_mode else "new",
+                trace=build_trace("squawk", SQUAWK_PATTERN.pattern),
             )
         )
 
@@ -138,6 +153,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=hold_match.group(1),
                 unit=None,
                 update="replace" if correction_mode else "new",
+                trace=build_trace("hold", HOLD_PATTERN.pattern),
             )
         )
 
@@ -150,6 +166,7 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 value=int(climb_rate_match.group(2)),
                 unit="fpm",
                 update="replace" if correction_mode else "new",
+                trace=build_trace("climb_rate", CLIMB_RATE_PATTERN.pattern),
             )
         )
 
