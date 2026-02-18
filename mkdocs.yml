@@ -1,5 +1,7 @@
 site_name: ATLAS Documentation
 site_description: Air Traffic Language Analysis System documentation
+repo_url: https://github.com/sankarebarri/ATLAS
+
 
 theme:
   name: material
