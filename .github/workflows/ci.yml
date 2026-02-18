@@ -29,16 +29,48 @@ jobs:
 
       - name: eval_clean
         run: |
-          python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
+          python3 -m atlas.evaluate --dataset data/gold/v0_slice.jsonl --write-report --report-label clean
 
       - name: eval_noisy
         run: |
-          python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl
+          python3 -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl --write-report --report-label noisy
 
       - name: eval_readback
         run: |
-          python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl
+          python3 -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl --write-report --report-label readback
 
-      - name: gate_noisy
+      - name: intent_check
         run: |
-          python -c "from pathlib import Path; from atlas.evaluate import evaluate_dataset; import sys; r=evaluate_dataset(Path('data/gold/v0_noisy_slice.jsonl')); ok=(r['intent']['f1']>=0.90 and r['slot']['f1']>=0.85 and r['status_accuracy']>=0.90); print(r); sys.exit(0 if ok else 1)"
+          intent check
+
+      -
+        name: Upload artifact: atlas-reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "atlas-reports"
+          path: "reports/*.json"
+          retention-days: 14
+      -
+        name: Upload artifact: atlas-reports-md
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: "atlas-reports-md"
+          path: "reports/*.md"
+          retention-days: 14
+      -
+        name: Write intent summary
+        if: ${{ always() }}
+        run: |
+          intent check --format json > intent-check.json || true
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('intent-check.json').read_text(encoding='utf-8'))
+          report = payload.get('report') or {}
+          summary = report.get('summary_markdown')
+          if summary:
+              github_summary = Path('${GITHUB_STEP_SUMMARY}')
+              github_summary.write_text(summary + '\n', encoding='utf-8')
+          PY

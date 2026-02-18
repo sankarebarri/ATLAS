@@ -8,13 +8,13 @@ test:
     pytest -q
 
 eval_clean:
-    python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
+    python3 -m atlas.evaluate --dataset data/gold/v0_slice.jsonl --write-report --report-label clean
 
 eval_noisy:
-    python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl
+    python3 -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl --write-report --report-label noisy
 
 eval_readback:
-    python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl
+    python3 -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl --write-report --report-label readback
 
-gate_noisy:
-    python -c "from pathlib import Path; from atlas.evaluate import evaluate_dataset; import sys; r=evaluate_dataset(Path('data/gold/v0_noisy_slice.jsonl')); ok=(r['intent']['f1']>=0.90 and r['slot']['f1']>=0.85 and r['status_accuracy']>=0.90); print(r); sys.exit(0 if ok else 1)"
+intent_check:
+    intent check

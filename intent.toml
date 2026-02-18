@@ -6,16 +6,39 @@ version = "3.10"
 
 [commands]
 test = "pytest -q"
-eval_clean = "python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl"
-eval_noisy = "python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl"
-eval_readback = "python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl"
-gate_noisy = "python -c \"from pathlib import Path; from atlas.evaluate import evaluate_dataset; import sys; r=evaluate_dataset(Path('data/gold/v0_noisy_slice.jsonl')); ok=(r['intent']['f1']>=0.90 and r['slot']['f1']>=0.85 and r['status_accuracy']>=0.90); print(r); sys.exit(0 if ok else 1)\""
+eval_clean = "python3 -m atlas.evaluate --dataset data/gold/v0_slice.jsonl --write-report --report-label clean"
+eval_noisy = "python3 -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl --write-report --report-label noisy"
+eval_readback = "python3 -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl --write-report --report-label readback"
+intent_check = "intent check"
 
 [ci]
 install = "-e .[dev]"
 cache = "pip"
 python_versions = ["3.10", "3.12"]
 triggers = ["push", "pull_request"]
+artifacts = [
+  { name = "atlas-reports", path = "reports/*.json", retention_days = 14, when = "always" },
+  { name = "atlas-reports-md", path = "reports/*.md", retention_days = 14, when = "always" },
+]
+
+[ci.summary]
+enabled = true
+title = "ATLAS CI Summary"
+include_assertions = true
+metrics = [
+  { label = "Noisy Intent F1", command = "eval_noisy", path = "intent.f1", precision = 4 },
+  { label = "Noisy Slot F1", command = "eval_noisy", path = "slot.f1", precision = 4 },
+  { label = "Noisy Status Accuracy", command = "eval_noisy", path = "status_accuracy", precision = 4 },
+  { label = "Readback F1", command = "eval_readback", path = "readback_mismatch.f1", precision = 4 },
+]
+
+[checks]
+assertions = [
+  { command = "eval_noisy", path = "intent.f1", op = "gte", value = 0.90, message = "Noisy intent F1 must stay >= 0.90" },
+  { command = "eval_noisy", path = "slot.f1", op = "gte", value = 0.85, message = "Noisy slot F1 must stay >= 0.85" },
+  { command = "eval_noisy", path = "status_accuracy", op = "gte", value = 0.90, message = "Noisy status accuracy must stay >= 0.90" },
+  { command = "eval_readback", path = "readback_mismatch.f1", op = "gte", value = 0.90, message = "Readback mismatch F1 must stay >= 0.90" },
+]
 
 [policy]
 pack = "default"

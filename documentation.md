@@ -29,6 +29,13 @@ python -m atlas.cli "Air France 345, descend flight level 180, reduce speed to 2
 pytest -q
 ```
 
+## CI Checks (Intent)
+```bash
+intent sync --write
+intent check
+```
+`intent check` enforces configured metric thresholds and fails on regressions.
+
 ## Run Evaluation
 ```bash
 python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
@@ -101,4 +108,4 @@ git push
 - evaluation runner over gold JSONL datasets (`atlas.evaluate`)
 
 ## Known Gaps
-- no CI metrics/regression gates yet
+- calibration/reliability analysis not implemented yet

@@ -43,8 +43,8 @@ Legend:
 - [x] Build metric harness for slot extraction F1
 - [x] Build readback mismatch metric
 - [x] Add severity-weighted error reporting
-- [ ] Add CI regression job with thresholds
-- [ ] Block merge on regression threshold failures
+- [x] Add CI regression job with thresholds
+- [x] Block merge on regression threshold failures
 - [x] Produce reproducible evaluation report artifact
 
 ## Phase 3: Ambiguity and Hybrid Layer
@@ -79,5 +79,5 @@ Legend:
 - [x] Add parser trace metadata to every instruction
 - [x] Add hand-curated ASR-like noisy subset in `data/gold/`
 - [x] Add noisy normalization rules for spoken-number and ASR variants
-- [ ] Add CI workflow for tests + metrics
+- [x] Add CI workflow for tests + metrics
 - [x] Add waypoint and squawk parser support
