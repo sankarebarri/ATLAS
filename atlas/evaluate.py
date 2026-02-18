@@ -92,6 +92,80 @@ def _weighted_error_totals(
     }
 
 
+def _is_utterance_correct(expected: dict[str, Any], predicted: dict[str, Any]) -> bool:
+    if expected.get("status") != predicted.get("status"):
+        return False
+    if expected.get("callsign") != predicted.get("callsign"):
+        return False
+    return _slot_counter(expected.get("instructions", [])) == _slot_counter(predicted.get("instructions", []))
+
+
+def _calibration_report(confidences: list[float], correctness: list[int], bins: int = 10) -> dict[str, Any]:
+    n = len(confidences)
+    if n == 0:
+        return {
+            "bins": bins,
+            "ece": 0.0,
+            "mce": 0.0,
+            "brier_score": 0.0,
+            "reliability_bins": [],
+        }
+
+    ece = 0.0
+    mce = 0.0
+    reliability_bins: list[dict[str, Any]] = []
+
+    for i in range(bins):
+        low = i / bins
+        high = (i + 1) / bins
+        # Include right edge only on final bin so 1.0 is captured.
+        bucket_idx = [
+            idx
+            for idx, conf in enumerate(confidences)
+            if (low <= conf < high) or (i == bins - 1 and low <= conf <= high)
+        ]
+        count = len(bucket_idx)
+        if count == 0:
+            reliability_bins.append(
+                {
+                    "bin": i + 1,
+                    "low": round(low, 3),
+                    "high": round(high, 3),
+                    "count": 0,
+                    "avg_confidence": None,
+                    "accuracy": None,
+                    "gap": None,
+                }
+            )
+            continue
+
+        avg_conf = sum(confidences[idx] for idx in bucket_idx) / count
+        acc = sum(correctness[idx] for idx in bucket_idx) / count
+        gap = abs(acc - avg_conf)
+        ece += (count / n) * gap
+        mce = max(mce, gap)
+        reliability_bins.append(
+            {
+                "bin": i + 1,
+                "low": round(low, 3),
+                "high": round(high, 3),
+                "count": count,
+                "avg_confidence": round(avg_conf, 4),
+                "accuracy": round(acc, 4),
+                "gap": round(gap, 4),
+            }
+        )
+
+    brier = sum((conf - corr) ** 2 for conf, corr in zip(confidences, correctness, strict=True)) / n
+    return {
+        "bins": bins,
+        "ece": round(ece, 4),
+        "mce": round(mce, 4),
+        "brier_score": round(brier, 4),
+        "reliability_bins": reliability_bins,
+    }
+
+
 def compare_readback(atc_utterance: str, pilot_utterance: str) -> dict[str, Any]:
     atc = parse_utterance(atc_utterance, speaker="ATC")
     pilot = parse_utterance(pilot_utterance, speaker="PILOT")
@@ -129,6 +203,8 @@ def evaluate_dataset(path: Path, severity_weights: dict[str, float] | None = Non
     callsign_correct = 0
     weighted_fp = 0.0
     weighted_fn = 0.0
+    confidences: list[float] = []
+    correctness: list[int] = []
 
     for row in rows:
         expected = row["expected"]
@@ -160,6 +236,8 @@ def evaluate_dataset(path: Path, severity_weights: dict[str, float] | None = Non
             status_correct += 1
         if predicted.get("callsign") == expected.get("callsign"):
             callsign_correct += 1
+        confidences.append(float(predicted.get("confidence", 0.0)))
+        correctness.append(1 if _is_utterance_correct(expected, predicted) else 0)
 
     n = len(rows)
     weighted_total = weighted_fp + weighted_fn
@@ -191,6 +269,7 @@ def evaluate_dataset(path: Path, severity_weights: dict[str, float] | None = Non
             "weighted_total_error": round(weighted_total, 4),
             "weighted_error_per_sample": round(_safe_div(weighted_total, n), 4),
         },
+        "calibration": _calibration_report(confidences, correctness, bins=10),
     }
 
 
@@ -275,6 +354,19 @@ def _render_markdown_report(report: dict[str, Any]) -> str:
                     f"- Weighted FN: `{sev['weighted_fn']}`",
                     f"- Weighted Total Error: `{sev['weighted_total_error']}`",
                     f"- Weighted Error / Sample: `{sev['weighted_error_per_sample']}`",
+                    "",
+                ]
+            )
+        if "calibration" in report:
+            cal = report["calibration"]
+            lines.extend(
+                [
+                    "## Calibration",
+                    "",
+                    f"- ECE: `{cal['ece']}`",
+                    f"- MCE: `{cal['mce']}`",
+                    f"- Brier Score: `{cal['brier_score']}`",
+                    f"- Bins: `{cal['bins']}`",
                     "",
                 ]
             )

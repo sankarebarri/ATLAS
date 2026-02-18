@@ -51,6 +51,7 @@ This reports:
 - callsign accuracy
 - readback mismatch precision/recall/F1/accuracy
 - severity-weighted error totals (`weighted_fp`, `weighted_fn`, `weighted_total_error`)
+- calibration/reliability metrics (`ece`, `mce`, `brier_score`, `reliability_bins`)
 - reproducible report artifacts (`report_artifacts`) as JSON + markdown
 
 Report artifact notes:
@@ -108,4 +109,4 @@ git push
 - evaluation runner over gold JSONL datasets (`atlas.evaluate`)
 
 ## Known Gaps
-- calibration/reliability analysis not implemented yet
+- hybrid disambiguation layer not implemented yet

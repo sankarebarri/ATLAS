@@ -36,6 +36,12 @@ This file defines ML/NLP evaluation terms used in ATLAS.
   - `weighted_fp = sum(weight(type) * FP_count_by_type)`
   - `weighted_fn = sum(weight(type) * FN_count_by_type)`
   - `weighted_total_error = weighted_fp + weighted_fn`
+- `Calibration`:
+  - measures whether confidence scores match empirical correctness.
+  - `ECE` (Expected Calibration Error): weighted average confidence-accuracy gap across bins.
+  - `MCE` (Maximum Calibration Error): worst per-bin confidence-accuracy gap.
+  - `Brier score`: mean squared error between confidence and correctness.
+  - Formula: `brier = mean((confidence - correctness)^2)`
 
 ## Practical Interpretation
 - High precision + low recall: conservative parser, misses many valid intents.

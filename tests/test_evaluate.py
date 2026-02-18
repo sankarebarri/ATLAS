@@ -11,6 +11,13 @@ def test_evaluate_dataset_returns_metrics() -> None:
     assert 0.0 <= report["status_accuracy"] <= 1.0
     assert 0.0 <= report["callsign_accuracy"] <= 1.0
     assert "severity_weighted_error" in report
+    assert "calibration" in report
+    calibration = report["calibration"]
+    assert 0.0 <= calibration["ece"] <= 1.0
+    assert 0.0 <= calibration["mce"] <= 1.0
+    assert calibration["brier_score"] >= 0.0
+    assert calibration["bins"] == 10
+    assert len(calibration["reliability_bins"]) == 10
 
 
 def test_severity_weighted_error_nonzero_on_noisy_data() -> None:

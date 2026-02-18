@@ -50,7 +50,7 @@ Legend:
 ## Phase 3: Ambiguity and Hybrid Layer
 - [ ] Add hybrid disambiguation layer (rules first, ML assist second)
 - [x] Define confidence threshold policy
-- [ ] Add calibration/reliability analysis
+- [x] Add calibration/reliability analysis
 - [ ] Improve ambiguous-case performance over deterministic baseline
 - [ ] Preserve high-confidence deterministic performance
 
