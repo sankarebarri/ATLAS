@@ -16,6 +16,11 @@ This repository now includes:
   - heading
   - frequency
   - runway
+  - waypoint
+  - squawk
+  - hold
+  - direct
+  - climb_rate
 - explicit fallback statuses (`ok`, `unknown`, `conflict`)
 - amendment detection for `correction` utterances
 

@@ -39,9 +39,9 @@ def test_unknown_when_no_supported_intent() -> None:
 def test_parses_direct_waypoint_instruction() -> None:
     out = parse_utterance("DAL220 proceed direct LAM")
     assert out["status"] == "ok"
-    waypoint = next(item for item in out["instructions"] if item["type"] == "waypoint")
-    assert waypoint["action"] == "direct"
-    assert waypoint["value"] == "LAM"
+    direct = next(item for item in out["instructions"] if item["type"] == "direct")
+    assert direct["action"] == "direct"
+    assert direct["value"] == "LAM"
 
 
 def test_parses_squawk_instruction() -> None:
@@ -50,3 +50,10 @@ def test_parses_squawk_instruction() -> None:
     squawk = next(item for item in out["instructions"] if item["type"] == "squawk")
     assert squawk["action"] == "assign"
     assert squawk["value"] == "4721"
+
+
+def test_parses_waypoint_hold_and_climb_rate() -> None:
+    out = parse_utterance("AAL22 proceed to DINKY and hold at DINKY and climb at 1800 fpm")
+    assert out["status"] == "ok"
+    types = {item["type"] for item in out["instructions"]}
+    assert {"waypoint", "hold", "climb_rate"}.issubset(types)

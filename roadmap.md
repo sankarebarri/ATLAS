@@ -29,9 +29,9 @@ Legend:
 - [x] Implement instruction parsing: runway
 - [x] Implement instruction parsing: waypoint
 - [x] Implement instruction parsing: squawk
-- [ ] Implement instruction parsing: hold
-- [ ] Implement instruction parsing: direct
-- [ ] Implement instruction parsing: climb_rate
+- [x] Implement instruction parsing: hold
+- [x] Implement instruction parsing: direct
+- [x] Implement instruction parsing: climb_rate
 - [x] Add basic amendment/correction handling
 - [x] Emit explicit fallback states for failed parses
 - [~] Ensure no silent parse failures with traceable parser decisions

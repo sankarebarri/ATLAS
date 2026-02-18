@@ -12,8 +12,11 @@ SPEED_PATTERN = re.compile(r"\b(REDUCE|MAINTAIN|INCREASE)\s+SPEED\s+(?:TO\s+)?(\
 HEADING_PATTERN = re.compile(r"\b(?:TURN\s+(LEFT|RIGHT)\s+)?HEADING\s+(\d{2,3})\b")
 FREQ_PATTERN = re.compile(r"\b(?:CONTACT|MONITOR)\s+([0-9]{3}\.[0-9]{1,3})\b")
 RUNWAY_PATTERN = re.compile(r"\b(?:CLEARED\s+)?(?:ILS\s+)?(?:APPROACH\s+)?RUNWAY\s+([0-9]{1,2}[LRC]?)\b")
-WAYPOINT_PATTERN = re.compile(r"\b(?:DIRECT|PROCEED\s+DIRECT)\s+([A-Z]{2,6})\b")
+WAYPOINT_PATTERN = re.compile(r"\b(?:PROCEED\s+TO|REPORT\s+OVER|CROSS)\s+([A-Z]{2,6})\b")
+DIRECT_PATTERN = re.compile(r"\b(?:DIRECT|PROCEED\s+DIRECT)\s+([A-Z]{2,6})\b")
 SQUAWK_PATTERN = re.compile(r"\bSQUAWK\s+([0-7]{4})\b")
+HOLD_PATTERN = re.compile(r"\bHOLD(?:\s+AT)?\s+([A-Z]{2,6})\b")
+CLIMB_RATE_PATTERN = re.compile(r"\b(CLIMB|DESCEND)\s+AT\s+(\d{3,4})\s*(?:FEET PER MINUTE|FPM)\b")
 UNTIL_PATTERN = re.compile(r"\bUNTIL\s+([A-Z0-9]+)\b")
 
 
@@ -90,12 +93,24 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
             )
         )
 
+    direct_match = DIRECT_PATTERN.search(segment)
+    if direct_match:
+        found.append(
+            Instruction(
+                type="direct",
+                action="direct",
+                value=direct_match.group(1),
+                unit=None,
+                update="replace" if correction_mode else "new",
+            )
+        )
+
     waypoint_match = WAYPOINT_PATTERN.search(segment)
     if waypoint_match:
         found.append(
             Instruction(
                 type="waypoint",
-                action="direct",
+                action="navigate",
                 value=waypoint_match.group(1),
                 unit=None,
                 update="replace" if correction_mode else "new",
@@ -110,6 +125,30 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 action="assign",
                 value=squawk_match.group(1),
                 unit="octal",
+                update="replace" if correction_mode else "new",
+            )
+        )
+
+    hold_match = HOLD_PATTERN.search(segment)
+    if hold_match:
+        found.append(
+            Instruction(
+                type="hold",
+                action="hold",
+                value=hold_match.group(1),
+                unit=None,
+                update="replace" if correction_mode else "new",
+            )
+        )
+
+    climb_rate_match = CLIMB_RATE_PATTERN.search(segment)
+    if climb_rate_match:
+        found.append(
+            Instruction(
+                type="climb_rate",
+                action=climb_rate_match.group(1).lower(),
+                value=int(climb_rate_match.group(2)),
+                unit="fpm",
                 update="replace" if correction_mode else "new",
             )
         )
