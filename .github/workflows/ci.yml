@@ -23,6 +23,11 @@ jobs:
           python -m pip install -U pip
           python -m pip install -e .[dev]
 
+      - name: docs_build
+        if: ${{ matrix.python-version == '3.12' }}
+        run: |
+          mkdocs build --strict
+
       - name: test
         run: |
           pytest -q
@@ -38,6 +43,30 @@ jobs:
       - name: eval_readback
         run: |
           python3 -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl --write-report --report-label readback
+
+      - name: eval_region
+        run: |
+          python3 -m atlas.evaluate --dataset data/gold/v0_region_phraseology_slice.jsonl --write-report --report-label region
+
+      - name: eval_region_apac
+        run: |
+          python3 -m atlas.evaluate --dataset data/gold/v0_region_phraseology_apac_slice.jsonl --write-report --report-label region-apac
+
+      - name: eval_safety
+        run: |
+          python3 -m atlas.evaluate --safety-dataset data/gold/v0_noisy_slice.jsonl --write-report --report-label safety
+
+      - name: data_quality
+        run: |
+          python3 -m atlas.data_quality --dataset data/gold/v0_slice.jsonl
+          python3 -m atlas.data_quality --dataset data/gold/v0_noisy_slice.jsonl
+          python3 -m atlas.data_quality --dataset data/gold/v0_ambiguity_slice.jsonl
+          python3 -m atlas.data_quality --dataset data/gold/v0_region_phraseology_slice.jsonl
+          python3 -m atlas.data_quality --dataset data/gold/v0_region_phraseology_apac_slice.jsonl
+
+      - name: safety_gate
+        run: |
+          python3 -m atlas.safety_review --dataset data/gold/v0_noisy_slice.jsonl --min-non-ok-recall 1.0 --max-violations 0 --max-blocking-status-rate 0.25 --baseline-safety-json data/gold/safety_baseline.noisy.json --max-blocking-rate-delta 0.05
 
       - name: intent_check
         run: |

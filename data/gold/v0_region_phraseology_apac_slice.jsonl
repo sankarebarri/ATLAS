@@ -1,0 +1,6 @@
+{"id":"apac-0001","utterance":"QFA12 climb and maintain flight level 350","speaker":"ATC","expected":{"status":"ok","callsign":"QFA12","instructions":[{"type":"altitude","action":"climb","value":350,"unit":"FL"}]}}
+{"id":"apac-0002","utterance":"SIA318 descend to level 120","speaker":"ATC","expected":{"status":"ok","callsign":"SIA318","instructions":[{"type":"altitude","action":"descend","value":120,"unit":"FL"}]}}
+{"id":"apac-0003","utterance":"JAL7 contact tower on 118.300","speaker":"ATC","expected":{"status":"ok","callsign":"JAL7","instructions":[{"type":"frequency","action":"contact","value":118.3,"unit":"MHz"}]}}
+{"id":"apac-0004","utterance":"ANA880 monitor on 123.700","speaker":"ATC","expected":{"status":"ok","callsign":"ANA880","instructions":[{"type":"frequency","action":"contact","value":123.7,"unit":"MHz"}]}}
+{"id":"apac-0005","utterance":"THY5 cleared direct DOVAN","speaker":"ATC","expected":{"status":"ok","callsign":"THY5","instructions":[{"type":"direct","action":"direct","value":"DOVAN","unit":null}]}}
+{"id":"apac-0006","utterance":"CPA250 proceed via SABNO","speaker":"ATC","expected":{"status":"ok","callsign":"CPA250","instructions":[{"type":"waypoint","action":"navigate","value":"SABNO","unit":null}]}}

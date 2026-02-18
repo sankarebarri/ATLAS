@@ -16,5 +16,30 @@ eval_noisy:
 eval_readback:
     python3 -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl --write-report --report-label readback
 
+eval_region:
+    python3 -m atlas.evaluate --dataset data/gold/v0_region_phraseology_slice.jsonl --write-report --report-label region
+
+eval_region_apac:
+    python3 -m atlas.evaluate --dataset data/gold/v0_region_phraseology_apac_slice.jsonl --write-report --report-label region-apac
+
+eval_safety:
+    python3 -m atlas.evaluate --safety-dataset data/gold/v0_noisy_slice.jsonl --write-report --report-label safety
+
+data_quality:
+    python3 -m atlas.data_quality --dataset data/gold/v0_slice.jsonl
+    python3 -m atlas.data_quality --dataset data/gold/v0_noisy_slice.jsonl
+    python3 -m atlas.data_quality --dataset data/gold/v0_ambiguity_slice.jsonl
+    python3 -m atlas.data_quality --dataset data/gold/v0_region_phraseology_slice.jsonl
+    python3 -m atlas.data_quality --dataset data/gold/v0_region_phraseology_apac_slice.jsonl
+
+safety_gate:
+    python3 -m atlas.safety_review --dataset data/gold/v0_noisy_slice.jsonl --min-non-ok-recall 1.0 --max-violations 0 --max-blocking-status-rate 0.25 --baseline-safety-json data/gold/safety_baseline.noisy.json --max-blocking-rate-delta 0.05
+
+docs_build:
+    mkdocs build --strict
+
+docs_serve:
+    mkdocs serve
+
 intent_check:
     intent check

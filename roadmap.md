@@ -48,36 +48,33 @@ Legend:
 - [x] Produce reproducible evaluation report artifact
 
 ## Phase 3: Ambiguity and Hybrid Layer
-- [ ] Add hybrid disambiguation layer (rules first, ML assist second)
+- [x] Add hybrid disambiguation layer (rules first, ML assist second)
 - [x] Define confidence threshold policy
 - [x] Add calibration/reliability analysis
-- [ ] Improve ambiguous-case performance over deterministic baseline
-- [ ] Preserve high-confidence deterministic performance
+- [x] Improve ambiguous-case performance over deterministic baseline
+- [x] Preserve high-confidence deterministic performance
 
 ## Phase 4: Context and Sequencing
-- [ ] Add multi-turn state tracking (amendments/cancellations)
-- [ ] Support temporal conditions (`until`, `after`, `then`) across turns
-- [ ] Add contradiction/conflict detection across history
-- [ ] Pass sequence benchmarks for amendment/correction scenarios
+- [x] Add multi-turn state tracking (amendments/cancellations)
+- [x] Support temporal conditions (`until`, `after`, `then`) across turns
+- [x] Add contradiction/conflict detection across history
+- [x] Pass sequence benchmarks for amendment/correction scenarios
 
 ## Phase 5: Integration and Developer Readiness
-- [ ] Write contract migration notes (`v0.1 -> v0.2`)
-- [ ] Add integration examples for downstream consumers
-- [ ] Expand docs pack with minimal and realistic examples
-- [ ] Add safety and limitations playbook
-- [ ] Capture baseline performance profile
-- [ ] Complete one downstream integration dry run
+- [x] Write contract migration notes (`v0.1 -> v0.2`)
+- [x] Add integration examples for downstream consumers
+- [x] Expand docs pack with minimal and realistic examples
+- [x] Add safety and limitations playbook
+- [x] Capture baseline performance profile
+- [x] Complete one downstream integration dry run
 
 ## Continuous Workstreams
-- [ ] Data quality and annotation adjudication process
-- [ ] Observability and parse trace logging
-- [ ] Phraseology coverage expansion by region/procedure
-- [ ] Safety review for failure modes and fallback behavior
+- [x] Data quality and annotation adjudication process
+- [x] Observability and parse trace logging
+- [x] Phraseology coverage expansion by region/procedure
+- [x] Safety review for failure modes and fallback behavior
 
 ## Next Up (Immediate)
-- [x] Build first gold slice in `data/gold/`
-- [x] Add parser trace metadata to every instruction
-- [x] Add hand-curated ASR-like noisy subset in `data/gold/`
-- [x] Add noisy normalization rules for spoken-number and ASR variants
-- [x] Add CI workflow for tests + metrics
-- [x] Add waypoint and squawk parser support
+- [x] Continue phraseology expansion with additional region-specific corpora
+- [x] Add CI thresholds for safety metrics trend regression
+- [x] Add adjudication reviewer assignment/ownership policy

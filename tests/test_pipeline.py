@@ -94,3 +94,54 @@ def test_noisy_spoken_squawk_and_rate() -> None:
     assert squawk["value"] == "7000"
     rate = next(item for item in out["instructions"] if item["type"] == "climb_rate")
     assert rate["value"] == 1400
+
+
+def test_hybrid_disambiguates_maintain_value_to_speed() -> None:
+    out = parse_utterance("AAL77 maintain 250")
+    assert out["status"] == "ok"
+    speed = next(item for item in out["instructions"] if item["type"] == "speed")
+    assert speed["action"] == "maintain"
+    assert speed["value"] == 250
+    assert "hybrid_disambiguation_applied" in out["notes"]
+
+
+def test_hybrid_disambiguates_maintain_value_to_altitude() -> None:
+    out = parse_utterance("AAL77 maintain 320")
+    assert out["status"] == "ok"
+    altitude = next(item for item in out["instructions"] if item["type"] == "altitude")
+    assert altitude["action"] == "maintain"
+    assert altitude["value"] == 320
+    assert altitude["trace"]["rule"] == "hybrid_disambiguation"
+
+
+def test_hybrid_rule_override_for_knots_hint() -> None:
+    out = parse_utterance("AAL77 maintain 280 knots")
+    speed = next(item for item in out["instructions"] if item["type"] == "speed")
+    assert speed["value"] == 280
+    assert speed["trace"]["resolution_mode"] == "rules"
+
+
+def test_parses_regional_climb_and_maintain_phrase() -> None:
+    out = parse_utterance("UAL12 climb and maintain flight level 220")
+    altitude = next(item for item in out["instructions"] if item["type"] == "altitude")
+    assert altitude["action"] == "climb"
+    assert altitude["value"] == 220
+
+
+def test_parses_level_phrase_variant() -> None:
+    out = parse_utterance("BAW22 descend to level 90")
+    altitude = next(item for item in out["instructions"] if item["type"] == "altitude")
+    assert altitude["action"] == "descend"
+    assert altitude["value"] == 90
+
+
+def test_parses_contact_on_frequency_variant() -> None:
+    out = parse_utterance("AFR33 contact tower on 118.700")
+    frequency = next(item for item in out["instructions"] if item["type"] == "frequency")
+    assert frequency["value"] == 118.7
+
+
+def test_parses_cleared_direct_and_proceed_via_variants() -> None:
+    out = parse_utterance("AAL10 cleared direct LAM and proceed via DINKY")
+    types = {item["type"] for item in out["instructions"]}
+    assert {"direct", "waypoint"}.issubset(types)

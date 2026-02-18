@@ -6,18 +6,20 @@ from atlas.models import Instruction
 
 
 ALTITUDE_PATTERNS = [
-    re.compile(r"\b(DESCEND|CLIMB|MAINTAIN)\b\s+(?:FLIGHT LEVEL\s+)?(\d{2,3})\b"),
+    re.compile(r"\b(DESCEND|CLIMB|MAINTAIN)\b\s+(?:(?:FLIGHT\s+)?LEVEL\s*|FL\s*)?(\d{2,3})\b"),
+    re.compile(r"\b(DESCEND|CLIMB)\b\s+TO\s+(?:(?:FLIGHT\s+)?LEVEL\s*|FL\s*)?(\d{2,3})\b"),
 ]
 SPEED_PATTERN = re.compile(r"\b(REDUCE|MAINTAIN|INCREASE)\s+SPEED\s+(?:TO\s+)?(\d{2,3})\b")
 HEADING_PATTERN = re.compile(r"\b(?:TURN\s+(LEFT|RIGHT)\s+)?HEADING\s+(\d{2,3})\b")
-FREQ_PATTERN = re.compile(r"\b(?:CONTACT|MONITOR)\s+([0-9]{3}\.[0-9]{1,3})\b")
+FREQ_PATTERN = re.compile(r"\b(?:CONTACT|MONITOR)\s+(?:ON\s+)?([0-9]{3}\.[0-9]{1,3})\b")
 RUNWAY_PATTERN = re.compile(r"\b(?:CLEARED\s+)?(?:ILS\s+)?(?:APPROACH\s+)?RUNWAY\s+([0-9]{1,2}[LRC]?)\b")
 WAYPOINT_PATTERN = re.compile(r"\b(?:PROCEED\s+TO|REPORT\s+OVER|CROSS)\s+([A-Z]{2,6})\b")
-DIRECT_PATTERN = re.compile(r"\b(?:DIRECT|PROCEED\s+DIRECT)\s+([A-Z]{2,6})\b")
+DIRECT_PATTERN = re.compile(r"\b(?:DIRECT|PROCEED\s+DIRECT|CLEARED\s+DIRECT)\s+([A-Z]{2,6})\b")
 SQUAWK_PATTERN = re.compile(r"\bSQUAWK\s+([0-7]{4})\b")
 HOLD_PATTERN = re.compile(r"\bHOLD(?:\s+AT)?\s+([A-Z]{2,6})\b")
 CLIMB_RATE_PATTERN = re.compile(r"\b(CLIMB|DESCEND)\s+AT\s+(\d{3,4})\s*(?:FEET PER MINUTE|FPM)\b")
 UNTIL_PATTERN = re.compile(r"\bUNTIL\s+([A-Z0-9]+)\b")
+AFTER_PATTERN = re.compile(r"\bAFTER\s+([A-Z0-9]+)\b")
 
 
 def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instruction]:
@@ -27,6 +29,10 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
     until_match = UNTIL_PATTERN.search(segment)
     if until_match:
         condition = f"until {until_match.group(1)}"
+    else:
+        after_match = AFTER_PATTERN.search(segment)
+        if after_match:
+            condition = f"after {after_match.group(1)}"
 
     def build_trace(rule: str, pattern: str) -> dict[str, str]:
         return {

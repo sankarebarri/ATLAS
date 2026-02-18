@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from atlas.pipeline import parse_utterance
+from atlas.sequence import SequenceState, parse_turn_with_state
 
 DEFAULT_SEVERITY_WEIGHTS: dict[str, float] = {
     "altitude": 5.0,
@@ -192,7 +193,12 @@ def compare_readback(atc_utterance: str, pilot_utterance: str) -> dict[str, Any]
     }
 
 
-def evaluate_dataset(path: Path, severity_weights: dict[str, float] | None = None) -> dict[str, Any]:
+def evaluate_dataset(
+    path: Path,
+    severity_weights: dict[str, float] | None = None,
+    *,
+    enable_hybrid: bool = True,
+) -> dict[str, Any]:
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
     weights = severity_weights or DEFAULT_SEVERITY_WEIGHTS
@@ -212,6 +218,7 @@ def evaluate_dataset(path: Path, severity_weights: dict[str, float] | None = Non
             text=row["utterance"],
             speaker=row.get("speaker", "ATC"),
             utterance_id=row.get("id"),
+            enable_hybrid=enable_hybrid,
         )
 
         expected_types = _instruction_type_counter(expected.get("instructions", []))
@@ -273,6 +280,30 @@ def evaluate_dataset(path: Path, severity_weights: dict[str, float] | None = Non
     }
 
 
+def evaluate_hybrid_ambiguity(path: Path) -> dict[str, Any]:
+    baseline = evaluate_dataset(path, enable_hybrid=False)
+    hybrid = evaluate_dataset(path, enable_hybrid=True)
+
+    return {
+        "dataset": str(path),
+        "baseline": {
+            "slot_f1": baseline["slot"]["f1"],
+            "intent_f1": baseline["intent"]["f1"],
+            "status_accuracy": baseline["status_accuracy"],
+        },
+        "hybrid": {
+            "slot_f1": hybrid["slot"]["f1"],
+            "intent_f1": hybrid["intent"]["f1"],
+            "status_accuracy": hybrid["status_accuracy"],
+        },
+        "delta": {
+            "slot_f1": round(hybrid["slot"]["f1"] - baseline["slot"]["f1"], 4),
+            "intent_f1": round(hybrid["intent"]["f1"] - baseline["intent"]["f1"], 4),
+            "status_accuracy": round(hybrid["status_accuracy"] - baseline["status_accuracy"], 4),
+        },
+    }
+
+
 def evaluate_readback_dataset(path: Path) -> dict[str, Any]:
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
@@ -304,6 +335,149 @@ def evaluate_readback_dataset(path: Path) -> dict[str, Any]:
             "fp": fp,
             "fn": fn,
             "tn": tn,
+        },
+    }
+
+
+def evaluate_sequence_dataset(path: Path) -> dict[str, Any]:
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    turn_total = 0
+    turn_correct = 0
+    state_total = 0
+    state_correct = 0
+
+    def _sequence_slot_counter(instructions: list[dict[str, Any]]) -> Counter[tuple[Any, ...]]:
+        return Counter(
+            (
+                item.get("type"),
+                item.get("action"),
+                _canonical_value(item.get("value")),
+                item.get("unit"),
+                item.get("condition"),
+            )
+            for item in instructions
+        )
+
+    for row in rows:
+        state = SequenceState()
+        callsign_for_state = str(row["expected_final_state"]["callsign"])
+
+        for idx, turn in enumerate(row["turns"]):
+            predicted = parse_turn_with_state(
+                turn["utterance"],
+                state=state,
+                speaker="ATC",
+                utterance_id=f"{row['session_id']}-turn-{idx + 1}",
+            )
+            expected = turn["expected"]
+
+            turn_total += 1
+            if (
+                predicted.get("status") == expected.get("status")
+                and predicted.get("callsign") == expected.get("callsign")
+                and _sequence_slot_counter(predicted.get("instructions", []))
+                == _sequence_slot_counter(expected.get("instructions", []))
+            ):
+                turn_correct += 1
+
+        expected_active = row["expected_final_state"]["active"]
+        predicted_active = state.active_by_callsign.get(callsign_for_state, {})
+        state_total += 1
+
+        # Compare only keys/values required by benchmark.
+        state_ok = True
+        for slot_type, expected_slot in expected_active.items():
+            pred_slot = predicted_active.get(slot_type)
+            if not pred_slot:
+                state_ok = False
+                break
+            if pred_slot.get("type") != expected_slot.get("type") or pred_slot.get("value") != expected_slot.get("value"):
+                state_ok = False
+                break
+            if "condition" in expected_slot and pred_slot.get("condition") != expected_slot.get("condition"):
+                state_ok = False
+                break
+        if state_ok and set(predicted_active) == set(expected_active):
+            state_correct += 1
+
+    return {
+        "dataset": str(path),
+        "sessions": len(rows),
+        "turns": turn_total,
+        "turn_accuracy": round(_safe_div(turn_correct, turn_total), 4),
+        "final_state_accuracy": round(_safe_div(state_correct, state_total), 4),
+    }
+
+
+def evaluate_safety_dataset(path: Path, min_operational_threshold: float = 0.60) -> dict[str, Any]:
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    violations = {
+        "silent_ok_without_instructions": 0,
+        "ok_below_operational_threshold": 0,
+        "unknown_with_instructions": 0,
+        "conflict_without_conflict_note": 0,
+    }
+    status_distribution: Counter[str] = Counter()
+    expected_non_ok = 0
+    detected_non_ok = 0
+
+    for row in rows:
+        expected = row.get("expected", {})
+        predicted = parse_utterance(
+            text=row["utterance"],
+            speaker=row.get("speaker", "ATC"),
+            utterance_id=row.get("id"),
+        )
+        status = str(predicted.get("status"))
+        status_distribution[status] += 1
+
+        instructions = predicted.get("instructions", [])
+        confidence = float(predicted.get("confidence", 0.0))
+        notes = set(predicted.get("notes", []))
+
+        if status == "ok" and not instructions:
+            violations["silent_ok_without_instructions"] += 1
+        if status == "ok" and confidence < min_operational_threshold:
+            violations["ok_below_operational_threshold"] += 1
+        if status == "unknown" and instructions:
+            violations["unknown_with_instructions"] += 1
+        if status == "conflict" and not (
+            "slot_conflict_detected" in notes or "history_conflict_detected" in notes
+        ):
+            violations["conflict_without_conflict_note"] += 1
+
+        if expected.get("status") in {"unknown", "ambiguous", "conflict"}:
+            expected_non_ok += 1
+            if status in {"unknown", "ambiguous", "conflict"}:
+                detected_non_ok += 1
+
+    n = len(rows)
+    total_violations = sum(violations.values())
+    blocking = status_distribution.get("unknown", 0) + status_distribution.get("ambiguous", 0) + status_distribution.get(
+        "conflict", 0
+    )
+
+    return {
+        "dataset": str(path),
+        "samples": n,
+        "safety": {
+            "policy_conformance": {
+                "min_operational_threshold": min_operational_threshold,
+                "total_violations": total_violations,
+                "violations": violations,
+                "violation_rate": round(_safe_div(total_violations, n), 4),
+            },
+            "fallback_behavior": {
+                "status_distribution": dict(status_distribution),
+                "blocking_status_rate": round(_safe_div(blocking, n), 4),
+            },
+            "failure_mode_detection": {
+                "expected_non_ok": expected_non_ok,
+                "detected_non_ok": detected_non_ok,
+                "non_ok_detection_recall": round(_safe_div(detected_non_ok, expected_non_ok), 4),
+            },
         },
     }
 
@@ -409,6 +583,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate ATLAS parser on gold datasets")
     parser.add_argument("--dataset", default=None, help="Path to single-utterance gold dataset JSONL")
     parser.add_argument("--readback-dataset", default=None, help="Path to readback-pair gold dataset JSONL")
+    parser.add_argument("--sequence-dataset", default=None, help="Path to sequence gold dataset JSONL")
+    parser.add_argument("--safety-dataset", default=None, help="Path to safety-evaluation dataset JSONL")
+    parser.add_argument("--hybrid-compare", action="store_true", help="Compare baseline deterministic vs hybrid mode")
+    parser.add_argument("--disable-hybrid", action="store_true", help="Run single-dataset evaluation with hybrid disabled")
     parser.add_argument("--severity-weights", default=None, help="Optional JSON file with per-intent weights")
     parser.add_argument("--write-report", action="store_true", help="Write timestamped JSON and markdown reports")
     parser.add_argument("--report-dir", default="reports", help="Directory for report artifacts")
@@ -417,9 +595,20 @@ def main() -> None:
 
     if args.readback_dataset:
         report = evaluate_readback_dataset(Path(args.readback_dataset))
+    elif args.safety_dataset:
+        report = evaluate_safety_dataset(Path(args.safety_dataset))
+    elif args.sequence_dataset:
+        report = evaluate_sequence_dataset(Path(args.sequence_dataset))
+    elif args.hybrid_compare:
+        dataset = args.dataset or "data/gold/v0_ambiguity_slice.jsonl"
+        report = evaluate_hybrid_ambiguity(Path(dataset))
     else:
         dataset = args.dataset or "data/gold/v0_slice.jsonl"
-        report = evaluate_dataset(Path(dataset), severity_weights=_load_weights(args.severity_weights))
+        report = evaluate_dataset(
+            Path(dataset),
+            severity_weights=_load_weights(args.severity_weights),
+            enable_hybrid=not args.disable_hybrid,
+        )
 
     if args.write_report:
         artifact_paths = write_report_artifacts(

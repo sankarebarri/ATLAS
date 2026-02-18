@@ -1,0 +1,37 @@
+site_name: ATLAS Documentation
+site_description: Air Traffic Language Analysis System documentation
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - content.code.copy
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - tables
+  - fenced_code
+
+nav:
+  - Home: index.md
+  - Getting Started: documentation.md
+  - Output Contract:
+      - Schema v0.1: contracts/atlas.intent.v0.1.md
+      - Migration v0.1 to v0.2: migration-v0.1-to-v0.2.md
+  - Phraseology:
+      - Conventions: phraseology-conventions.md
+      - Examples: examples.md
+  - Evaluation and Quality:
+      - ML Terms: ml-terms.md
+      - Data Quality and Adjudication: data-quality-adjudication.md
+      - Adjudication Ownership Policy: adjudication-ownership-policy.md
+      - Safety and Limitations: safety-limitations-playbook.md
+  - Integration:
+      - Integration Examples: integration-examples.md
+  - Reference:
+      - Glossary: glossary.md
+      - Future Improvements: future-improvements.md

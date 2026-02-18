@@ -1,0 +1,6 @@
+{"id":"region-0001","utterance":"UAL12 climb and maintain flight level 220","speaker":"ATC","expected":{"status":"ok","callsign":"UAL12","instructions":[{"type":"altitude","action":"climb","value":220,"unit":"FL"}]}}
+{"id":"region-0002","utterance":"BAW22 descend to level 90","speaker":"ATC","expected":{"status":"ok","callsign":"BAW22","instructions":[{"type":"altitude","action":"descend","value":90,"unit":"FL"}]}}
+{"id":"region-0003","utterance":"AFR33 contact tower on 118.700","speaker":"ATC","expected":{"status":"ok","callsign":"AFR33","instructions":[{"type":"frequency","action":"contact","value":118.7,"unit":"MHz"}]}}
+{"id":"region-0004","utterance":"AAL10 cleared direct LAM","speaker":"ATC","expected":{"status":"ok","callsign":"AAL10","instructions":[{"type":"direct","action":"direct","value":"LAM","unit":null}]}}
+{"id":"region-0005","utterance":"AAL10 proceed via DINKY","speaker":"ATC","expected":{"status":"ok","callsign":"AAL10","instructions":[{"type":"waypoint","action":"navigate","value":"DINKY","unit":null}]}}
+{"id":"region-0006","utterance":"DAL77 monitor on 121.900","speaker":"ATC","expected":{"status":"ok","callsign":"DAL77","instructions":[{"type":"frequency","action":"contact","value":121.9,"unit":"MHz"}]}}

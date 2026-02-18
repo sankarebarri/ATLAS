@@ -20,6 +20,18 @@
 - `CORRECTION` means subsequent instruction may replace a prior one.
 - `THEN`, `UNTIL`, `AFTER` define temporal ordering/conditions.
 
+## Regional / Procedure Variants
+- Altitude variants supported:
+  - `CLIMB AND MAINTAIN FLIGHT LEVEL <n>`
+  - `DESCEND TO LEVEL <n>`
+  - `CLIMB TO FL<n>` and `DESCEND TO FL<n>`
+- Frequency variants supported:
+  - `CONTACT ... ON <freq>`
+  - `MONITOR ON <freq>`
+- Navigation variants supported:
+  - `CLEARED DIRECT <fix>`
+  - `PROCEED VIA <fix>` (normalized to waypoint navigation)
+
 ## Fallback conventions
 - Emit `unknown` if no supported instruction class is matched.
 - Emit `ambiguous` if phrase maps equally to multiple actions.

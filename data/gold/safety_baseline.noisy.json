@@ -1,0 +1,16 @@
+{
+  "dataset": "data/gold/v0_noisy_slice.jsonl",
+  "safety": {
+    "policy_conformance": {
+      "min_operational_threshold": 0.6,
+      "total_violations": 0,
+      "violation_rate": 0.0
+    },
+    "fallback_behavior": {
+      "blocking_status_rate": 0.1667
+    },
+    "failure_mode_detection": {
+      "non_ok_detection_recall": 1.0
+    }
+  }
+}

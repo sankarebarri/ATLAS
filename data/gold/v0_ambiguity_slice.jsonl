@@ -1,0 +1,8 @@
+{"id":"ambig-0001","utterance":"AAL77 maintain 250","speaker":"ATC","expected":{"status":"ok","callsign":"AAL77","instructions":[{"type":"speed","action":"maintain","value":250,"unit":"kt"}]}}
+{"id":"ambig-0002","utterance":"UAL88 maintain 220","speaker":"ATC","expected":{"status":"ok","callsign":"UAL88","instructions":[{"type":"speed","action":"maintain","value":220,"unit":"kt"}]}}
+{"id":"ambig-0003","utterance":"DAL99 maintain 210","speaker":"ATC","expected":{"status":"ok","callsign":"DAL99","instructions":[{"type":"speed","action":"maintain","value":210,"unit":"kt"}]}}
+{"id":"ambig-0004","utterance":"BAW42 maintain 320","speaker":"ATC","expected":{"status":"ok","callsign":"BAW42","instructions":[{"type":"altitude","action":"maintain","value":320,"unit":"FL"}]}}
+{"id":"ambig-0005","utterance":"AFR51 maintain 340","speaker":"ATC","expected":{"status":"ok","callsign":"AFR51","instructions":[{"type":"altitude","action":"maintain","value":340,"unit":"FL"}]}}
+{"id":"ambig-0006","utterance":"AAL77 maintain 280 knots","speaker":"ATC","expected":{"status":"ok","callsign":"AAL77","instructions":[{"type":"speed","action":"maintain","value":280,"unit":"kt"}]}}
+{"id":"ambig-0007","utterance":"AAL77 maintain flight level 280","speaker":"ATC","expected":{"status":"ok","callsign":"AAL77","instructions":[{"type":"altitude","action":"maintain","value":280,"unit":"FL"}]}}
+{"id":"ambig-0008","utterance":"Speedbird 42 correction maintain 190 until LAM then descend 150","speaker":"ATC","expected":{"status":"conflict","callsign":"BAW42","instructions":[{"type":"altitude","action":"maintain","value":190,"unit":"FL"},{"type":"altitude","action":"descend","value":150,"unit":"FL"}]}}

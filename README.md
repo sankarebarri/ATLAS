@@ -23,6 +23,7 @@ This repository now includes:
   - climb_rate
 - explicit fallback statuses (`ok`, `unknown`, `conflict`)
 - amendment detection for `correction` utterances
+- multi-turn sequence parsing with context carryover, cancellation handling, and cross-turn temporal conditions
 
 ## Scope (v0)
 - Text transcripts first. Audio ingestion comes later.
@@ -46,6 +47,8 @@ pytest
 Run a parse:
 ```bash
 python -m atlas.cli "Air France 345, descend flight level 180, reduce speed to 250 knots"
+python -m atlas.cli --trace "AAL77 descend flight level 180 and reduce speed to 250"
+python -m atlas.cli --trace-log /tmp/atlas_trace.jsonl "AAL77 descend flight level 180"
 ```
 
 Run evaluation on the gold slice:
@@ -53,6 +56,9 @@ Run evaluation on the gold slice:
 python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
 python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl
 python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl --write-report --report-label noisy
+python -m atlas.evaluate --sequence-dataset data/gold/v0_sequence_slice.jsonl
+python -m atlas.evaluate --dataset data/gold/v0_region_phraseology_slice.jsonl
+python -m atlas.evaluate --dataset data/gold/v0_region_phraseology_apac_slice.jsonl
 ```
 
 ## Core Pipeline
@@ -61,6 +67,9 @@ python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl --write-report
 ## Output Contract
 See `docs/contracts/atlas.intent.v0.1.md`.
 ML metric terms are in `docs/ml-terms.md`.
+Migration guidance is in `docs/migration-v0.1-to-v0.2.md`.
+Integration examples are in `docs/integration-examples.md`.
+Safety guidance is in `docs/safety-limitations-playbook.md`.
 
 ## Example Output
 ```json
@@ -111,3 +120,30 @@ Execution milestones are in `roadmap.md`.
 
 ## Contributor Guide
 Daily development workflow and push checklist are in `documentation.md`.
+
+Run data quality audit:
+```bash
+python -m atlas.data_quality --dataset data/gold/v0_slice.jsonl
+```
+
+Run safety review:
+```bash
+python -m atlas.evaluate --safety-dataset data/gold/v0_noisy_slice.jsonl
+```
+
+Run strict safety gate:
+```bash
+python -m atlas.safety_review --dataset data/gold/v0_noisy_slice.jsonl --min-non-ok-recall 1.0 --max-violations 0 --max-blocking-status-rate 0.25 --baseline-safety-json data/gold/safety_baseline.noisy.json --max-blocking-rate-delta 0.05
+```
+
+Build docs locally:
+```bash
+mkdocs build --strict
+```
+
+Serve docs locally:
+```bash
+mkdocs serve
+```
+
+GitHub Pages deployment is automated on push to `main` via `.github/workflows/pages.yml`.
