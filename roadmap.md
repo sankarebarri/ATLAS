@@ -42,7 +42,7 @@ Legend:
 - [x] Build metric harness for intent precision/recall/F1
 - [x] Build metric harness for slot extraction F1
 - [x] Build readback mismatch metric
-- [ ] Add severity-weighted error reporting
+- [x] Add severity-weighted error reporting
 - [ ] Add CI regression job with thresholds
 - [ ] Block merge on regression threshold failures
 - [ ] Produce reproducible evaluation report artifact

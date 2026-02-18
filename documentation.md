@@ -34,6 +34,7 @@ pytest -q
 python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
 python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl
 python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl
+python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl --severity-weights my_weights.json
 ```
 This reports:
 - intent precision/recall/F1
@@ -41,6 +42,7 @@ This reports:
 - status accuracy
 - callsign accuracy
 - readback mismatch precision/recall/F1/accuracy
+- severity-weighted error totals (`weighted_fp`, `weighted_fn`, `weighted_total_error`)
 
 Dataset notes:
 - `data/gold/v0_slice.jsonl`: cleaner synthetic baseline.

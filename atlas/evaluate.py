@@ -8,8 +8,21 @@ from typing import Any
 
 from atlas.pipeline import parse_utterance
 
+DEFAULT_SEVERITY_WEIGHTS: dict[str, float] = {
+    "altitude": 5.0,
+    "heading": 4.0,
+    "speed": 4.0,
+    "runway": 5.0,
+    "frequency": 3.0,
+    "direct": 3.0,
+    "waypoint": 3.0,
+    "hold": 3.0,
+    "squawk": 2.0,
+    "climb_rate": 2.0,
+}
 
-def _safe_div(num: int, den: int) -> float:
+
+def _safe_div(num: float, den: float) -> float:
     return num / den if den else 0.0
 
 
@@ -55,6 +68,29 @@ def _counter_difference_items(left: Counter[tuple[Any, ...]], right: Counter[tup
     return items
 
 
+def _weighted_error_totals(
+    expected_slots: Counter[tuple[Any, ...]],
+    predicted_slots: Counter[tuple[Any, ...]],
+    severity_weights: dict[str, float],
+) -> dict[str, float]:
+    weighted_fp = 0.0
+    weighted_fn = 0.0
+
+    over_pred = predicted_slots - expected_slots
+    for (itype, _action, _value, _unit), count in over_pred.items():
+        weighted_fp += severity_weights.get(str(itype), 1.0) * count
+
+    missed = expected_slots - predicted_slots
+    for (itype, _action, _value, _unit), count in missed.items():
+        weighted_fn += severity_weights.get(str(itype), 1.0) * count
+
+    return {
+        "weighted_fp": round(weighted_fp, 4),
+        "weighted_fn": round(weighted_fn, 4),
+        "weighted_total_error": round(weighted_fp + weighted_fn, 4),
+    }
+
+
 def compare_readback(atc_utterance: str, pilot_utterance: str) -> dict[str, Any]:
     atc = parse_utterance(atc_utterance, speaker="ATC")
     pilot = parse_utterance(pilot_utterance, speaker="PILOT")
@@ -81,13 +117,17 @@ def compare_readback(atc_utterance: str, pilot_utterance: str) -> dict[str, Any]
     }
 
 
-def evaluate_dataset(path: Path) -> dict[str, Any]:
+def evaluate_dataset(path: Path, severity_weights: dict[str, float] | None = None) -> dict[str, Any]:
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    weights = severity_weights or DEFAULT_SEVERITY_WEIGHTS
 
     intent_tp = intent_fp = intent_fn = 0
     slot_tp = slot_fp = slot_fn = 0
     status_correct = 0
     callsign_correct = 0
+    weighted_fp = 0.0
+    weighted_fn = 0.0
 
     for row in rows:
         expected = row["expected"]
@@ -111,12 +151,17 @@ def evaluate_dataset(path: Path) -> dict[str, Any]:
         slot_fp += sum(predicted_slots.values()) - tp_s
         slot_fn += sum(expected_slots.values()) - tp_s
 
+        weighted = _weighted_error_totals(expected_slots, predicted_slots, weights)
+        weighted_fp += weighted["weighted_fp"]
+        weighted_fn += weighted["weighted_fn"]
+
         if predicted.get("status") == expected.get("status"):
             status_correct += 1
         if predicted.get("callsign") == expected.get("callsign"):
             callsign_correct += 1
 
     n = len(rows)
+    weighted_total = weighted_fp + weighted_fn
     return {
         "dataset": str(path),
         "samples": n,
@@ -138,6 +183,13 @@ def evaluate_dataset(path: Path) -> dict[str, Any]:
         },
         "status_accuracy": round(_safe_div(status_correct, n), 4),
         "callsign_accuracy": round(_safe_div(callsign_correct, n), 4),
+        "severity_weighted_error": {
+            "weights": weights,
+            "weighted_fp": round(weighted_fp, 4),
+            "weighted_fn": round(weighted_fn, 4),
+            "weighted_total_error": round(weighted_total, 4),
+            "weighted_error_per_sample": round(_safe_div(weighted_total, n), 4),
+        },
     }
 
 
@@ -176,17 +228,25 @@ def evaluate_readback_dataset(path: Path) -> dict[str, Any]:
     }
 
 
+def _load_weights(path: str | None) -> dict[str, float] | None:
+    if not path:
+        return None
+    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    return {str(k): float(v) for k, v in payload.items()}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate ATLAS parser on gold datasets")
     parser.add_argument("--dataset", default=None, help="Path to single-utterance gold dataset JSONL")
     parser.add_argument("--readback-dataset", default=None, help="Path to readback-pair gold dataset JSONL")
+    parser.add_argument("--severity-weights", default=None, help="Optional JSON file with per-intent weights")
     args = parser.parse_args()
 
     if args.readback_dataset:
         report = evaluate_readback_dataset(Path(args.readback_dataset))
     else:
         dataset = args.dataset or "data/gold/v0_slice.jsonl"
-        report = evaluate_dataset(Path(dataset))
+        report = evaluate_dataset(Path(dataset), severity_weights=_load_weights(args.severity_weights))
 
     print(json.dumps(report, indent=2, sort_keys=False))
 

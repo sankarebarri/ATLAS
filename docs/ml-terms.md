@@ -31,6 +31,11 @@ This file defines ML/NLP evaluation terms used in ATLAS.
 - `Readback mismatch detection`:
   - binary task where positive class means a mismatch exists between ATC clearance and pilot readback.
   - scored with precision/recall/F1/accuracy over pair-level decisions.
+- `Severity-weighted error`:
+  - applies risk weights per intent type to errors so high-risk misses count more.
+  - `weighted_fp = sum(weight(type) * FP_count_by_type)`
+  - `weighted_fn = sum(weight(type) * FN_count_by_type)`
+  - `weighted_total_error = weighted_fp + weighted_fn`
 
 ## Practical Interpretation
 - High precision + low recall: conservative parser, misses many valid intents.
