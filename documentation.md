@@ -33,16 +33,19 @@ pytest -q
 ```bash
 python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
 python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl
+python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl
 ```
 This reports:
 - intent precision/recall/F1
 - slot precision/recall/F1
 - status accuracy
 - callsign accuracy
+- readback mismatch precision/recall/F1/accuracy
 
 Dataset notes:
 - `data/gold/v0_slice.jsonl`: cleaner synthetic baseline.
 - `data/gold/v0_noisy_slice.jsonl`: hand-curated ASR-like noise/variant set.
+- `data/gold/readback_pairs.v0.jsonl`: ATC/pilot paired readback-mismatch set.
 
 ## Development Workflow
 1. Pick one unchecked task in `roadmap.md`.

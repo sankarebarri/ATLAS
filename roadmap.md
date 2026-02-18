@@ -41,7 +41,7 @@ Legend:
 - [x] Include amendment and edge-case examples in gold data
 - [x] Build metric harness for intent precision/recall/F1
 - [x] Build metric harness for slot extraction F1
-- [ ] Build readback mismatch metric
+- [x] Build readback mismatch metric
 - [ ] Add severity-weighted error reporting
 - [ ] Add CI regression job with thresholds
 - [ ] Block merge on regression threshold failures

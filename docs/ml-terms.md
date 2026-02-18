@@ -28,6 +28,9 @@ This file defines ML/NLP evaluation terms used in ATLAS.
   - fraction of utterances where predicted `status` equals expected `status`.
 - `Callsign accuracy`:
   - fraction of utterances where predicted `callsign` equals expected `callsign`.
+- `Readback mismatch detection`:
+  - binary task where positive class means a mismatch exists between ATC clearance and pilot readback.
+  - scored with precision/recall/F1/accuracy over pair-level decisions.
 
 ## Practical Interpretation
 - High precision + low recall: conservative parser, misses many valid intents.

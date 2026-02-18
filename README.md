@@ -51,6 +51,7 @@ python -m atlas.cli "Air France 345, descend flight level 180, reduce speed to 2
 Run evaluation on the gold slice:
 ```bash
 python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
+python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl
 ```
 
 ## Core Pipeline

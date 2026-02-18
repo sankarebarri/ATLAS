@@ -1,0 +1,18 @@
+{"id":"rb-0001","atc_utterance":"AFR345 descend flight level 180","pilot_utterance":"AFR345 descend flight level 180","expected_mismatch":false}
+{"id":"rb-0002","atc_utterance":"AFR345 descend flight level 180","pilot_utterance":"AFR345 descend flight level 170","expected_mismatch":true}
+{"id":"rb-0003","atc_utterance":"UAL12 turn left heading 270","pilot_utterance":"UAL12 turn left heading 270","expected_mismatch":false}
+{"id":"rb-0004","atc_utterance":"UAL12 turn left heading 270","pilot_utterance":"UAL12 turn right heading 270","expected_mismatch":true}
+{"id":"rb-0005","atc_utterance":"DAL220 proceed direct LAM","pilot_utterance":"DAL220 proceed direct LAM","expected_mismatch":false}
+{"id":"rb-0006","atc_utterance":"DAL220 proceed direct LAM","pilot_utterance":"DAL220 proceed direct BIG","expected_mismatch":true}
+{"id":"rb-0007","atc_utterance":"AAL505 squawk 7000","pilot_utterance":"AAL505 squawk 7000","expected_mismatch":false}
+{"id":"rb-0008","atc_utterance":"AAL505 squawk 7000","pilot_utterance":"AAL505 squawk 7700","expected_mismatch":true}
+{"id":"rb-0009","atc_utterance":"UAL521 contact 121.5 runway 27R","pilot_utterance":"UAL521 contact 121.5 runway 27R","expected_mismatch":false}
+{"id":"rb-0010","atc_utterance":"UAL521 contact 121.5 runway 27R","pilot_utterance":"UAL521 contact 121.5 runway 27L","expected_mismatch":true}
+{"id":"rb-0011","atc_utterance":"BAW101 hold at LAM","pilot_utterance":"BAW101 hold at LAM","expected_mismatch":false}
+{"id":"rb-0012","atc_utterance":"BAW101 hold at LAM","pilot_utterance":"BAW101 hold at CPT","expected_mismatch":true}
+{"id":"rb-0013","atc_utterance":"DAL777 climb at 1400 fpm","pilot_utterance":"DAL777 climb at 1400 fpm","expected_mismatch":false}
+{"id":"rb-0014","atc_utterance":"DAL777 climb at 1400 fpm","pilot_utterance":"DAL777 climb at 1800 fpm","expected_mismatch":true}
+{"id":"rb-0015","atc_utterance":"AAL22 proceed to DINKY and hold at DINKY","pilot_utterance":"AAL22 proceed to DINKY and hold at DINKY","expected_mismatch":false}
+{"id":"rb-0016","atc_utterance":"AAL22 proceed to DINKY and hold at DINKY","pilot_utterance":"AAL22 proceed to DINKY","expected_mismatch":true}
+{"id":"rb-0017","atc_utterance":"AFR345 descend flight level 180","pilot_utterance":"AFR346 descend flight level 180","expected_mismatch":true}
+{"id":"rb-0018","atc_utterance":"hello aircraft how are you","pilot_utterance":"roger","expected_mismatch":false}
