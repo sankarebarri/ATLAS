@@ -27,8 +27,8 @@ Legend:
 - [x] Implement instruction parsing: heading
 - [x] Implement instruction parsing: frequency
 - [x] Implement instruction parsing: runway
-- [ ] Implement instruction parsing: waypoint
-- [ ] Implement instruction parsing: squawk
+- [x] Implement instruction parsing: waypoint
+- [x] Implement instruction parsing: squawk
 - [ ] Implement instruction parsing: hold
 - [ ] Implement instruction parsing: direct
 - [ ] Implement instruction parsing: climb_rate
@@ -78,4 +78,4 @@ Legend:
 - [ ] Build first gold slice in `data/gold/`
 - [ ] Add parser trace metadata to every instruction
 - [ ] Add CI workflow for tests + metrics
-- [ ] Add waypoint and squawk parser support
+- [x] Add waypoint and squawk parser support

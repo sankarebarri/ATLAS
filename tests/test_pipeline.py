@@ -34,3 +34,19 @@ def test_unknown_when_no_supported_intent() -> None:
     out = parse_utterance("Hello aircraft how are you")
     assert out["status"] == "unknown"
     assert out["instructions"] == []
+
+
+def test_parses_direct_waypoint_instruction() -> None:
+    out = parse_utterance("DAL220 proceed direct LAM")
+    assert out["status"] == "ok"
+    waypoint = next(item for item in out["instructions"] if item["type"] == "waypoint")
+    assert waypoint["action"] == "direct"
+    assert waypoint["value"] == "LAM"
+
+
+def test_parses_squawk_instruction() -> None:
+    out = parse_utterance("UAL13 squawk 4721")
+    assert out["status"] == "ok"
+    squawk = next(item for item in out["instructions"] if item["type"] == "squawk")
+    assert squawk["action"] == "assign"
+    assert squawk["value"] == "4721"

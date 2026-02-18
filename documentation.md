@@ -64,12 +64,12 @@ git push
 
 ## Current Baseline Capabilities
 - callsign extraction/normalization
-- deterministic parsing for altitude, speed, heading, frequency, runway
+- deterministic parsing for altitude, speed, heading, frequency, runway, waypoint, squawk
 - fallback statuses: `ok`, `unknown`, `conflict`
 - basic amendment detection via `CORRECTION`
 
 ## Known Gaps
-- missing parser classes: waypoint, squawk, hold, direct, climb_rate
+- missing parser classes: hold, direct, climb_rate
 - no gold dataset yet
 - no CI metrics/regression gates yet
 - limited trace/audit output details

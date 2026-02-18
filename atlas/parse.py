@@ -12,6 +12,8 @@ SPEED_PATTERN = re.compile(r"\b(REDUCE|MAINTAIN|INCREASE)\s+SPEED\s+(?:TO\s+)?(\
 HEADING_PATTERN = re.compile(r"\b(?:TURN\s+(LEFT|RIGHT)\s+)?HEADING\s+(\d{2,3})\b")
 FREQ_PATTERN = re.compile(r"\b(?:CONTACT|MONITOR)\s+([0-9]{3}\.[0-9]{1,3})\b")
 RUNWAY_PATTERN = re.compile(r"\b(?:CLEARED\s+)?(?:ILS\s+)?(?:APPROACH\s+)?RUNWAY\s+([0-9]{1,2}[LRC]?)\b")
+WAYPOINT_PATTERN = re.compile(r"\b(?:DIRECT|PROCEED\s+DIRECT)\s+([A-Z]{2,6})\b")
+SQUAWK_PATTERN = re.compile(r"\bSQUAWK\s+([0-7]{4})\b")
 UNTIL_PATTERN = re.compile(r"\bUNTIL\s+([A-Z0-9]+)\b")
 
 
@@ -84,6 +86,30 @@ def parse_instruction(segment: str, correction_mode: bool = False) -> list[Instr
                 action="assign",
                 value=runway_match.group(1),
                 unit=None,
+                update="replace" if correction_mode else "new",
+            )
+        )
+
+    waypoint_match = WAYPOINT_PATTERN.search(segment)
+    if waypoint_match:
+        found.append(
+            Instruction(
+                type="waypoint",
+                action="direct",
+                value=waypoint_match.group(1),
+                unit=None,
+                update="replace" if correction_mode else "new",
+            )
+        )
+
+    squawk_match = SQUAWK_PATTERN.search(segment)
+    if squawk_match:
+        found.append(
+            Instruction(
+                type="squawk",
+                action="assign",
+                value=squawk_match.group(1),
+                unit="octal",
                 update="replace" if correction_mode else "new",
             )
         )
