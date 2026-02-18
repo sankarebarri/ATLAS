@@ -1,6 +1,8 @@
 site_name: ATLAS Documentation
 site_description: Air Traffic Language Analysis System documentation
 repo_url: https://github.com/sankarebarri/ATLAS
+site_url: https://sankarebarri.github.io/ATLAS/
+
 
 
 theme:

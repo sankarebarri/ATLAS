@@ -15,7 +15,7 @@ This document is the day-to-day operator and contributor guide for ATLAS.
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e .[dev]
+pip install -e .[dev,docs]
 ```
 
 ## Quick Run
