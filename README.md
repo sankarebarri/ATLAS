@@ -52,6 +52,7 @@ Run evaluation on the gold slice:
 ```bash
 python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
 python -m atlas.evaluate --readback-dataset data/gold/readback_pairs.v0.jsonl
+python -m atlas.evaluate --dataset data/gold/v0_noisy_slice.jsonl --write-report --report-label noisy
 ```
 
 ## Core Pipeline

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -235,11 +236,91 @@ def _load_weights(path: str | None) -> dict[str, float] | None:
     return {str(k): float(v) for k, v in payload.items()}
 
 
+def _slugify_label(label: str) -> str:
+    text = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in label.strip().lower())
+    text = "-".join(part for part in text.split("-") if part)
+    return text or "report"
+
+
+def _render_markdown_report(report: dict[str, Any]) -> str:
+    lines = [
+        "# ATLAS Evaluation Report",
+        "",
+        f"- Dataset: `{report.get('dataset')}`",
+        f"- Samples: `{report.get('samples')}`",
+        "",
+    ]
+
+    if "intent" in report:
+        intent = report["intent"]
+        slot = report["slot"]
+        lines.extend(
+            [
+                "## Core Metrics",
+                "",
+                f"- Intent F1: `{intent['f1']}` (P `{intent['precision']}`, R `{intent['recall']}`)",
+                f"- Slot F1: `{slot['f1']}` (P `{slot['precision']}`, R `{slot['recall']}`)",
+                f"- Status Accuracy: `{report['status_accuracy']}`",
+                f"- Callsign Accuracy: `{report['callsign_accuracy']}`",
+                "",
+            ]
+        )
+        if "severity_weighted_error" in report:
+            sev = report["severity_weighted_error"]
+            lines.extend(
+                [
+                    "## Severity-Weighted Error",
+                    "",
+                    f"- Weighted FP: `{sev['weighted_fp']}`",
+                    f"- Weighted FN: `{sev['weighted_fn']}`",
+                    f"- Weighted Total Error: `{sev['weighted_total_error']}`",
+                    f"- Weighted Error / Sample: `{sev['weighted_error_per_sample']}`",
+                    "",
+                ]
+            )
+
+    if "readback_mismatch" in report:
+        rb = report["readback_mismatch"]
+        lines.extend(
+            [
+                "## Readback Mismatch",
+                "",
+                f"- F1: `{rb['f1']}` (P `{rb['precision']}`, R `{rb['recall']}`)",
+                f"- Accuracy: `{rb['accuracy']}`",
+                f"- Counts: TP `{rb['tp']}`, FP `{rb['fp']}`, FN `{rb['fn']}`, TN `{rb['tn']}`",
+                "",
+            ]
+        )
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def write_report_artifacts(
+    report: dict[str, Any],
+    output_dir: Path,
+    label: str,
+    timestamp: str | None = None,
+) -> dict[str, str]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    ts = timestamp or datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    slug = _slugify_label(label)
+    stem = f"{ts}_{slug}"
+    json_path = output_dir / f"{stem}.json"
+    md_path = output_dir / f"{stem}.md"
+
+    json_path.write_text(json.dumps(report, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+    md_path.write_text(_render_markdown_report(report), encoding="utf-8")
+    return {"json": str(json_path), "markdown": str(md_path)}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Evaluate ATLAS parser on gold datasets")
     parser.add_argument("--dataset", default=None, help="Path to single-utterance gold dataset JSONL")
     parser.add_argument("--readback-dataset", default=None, help="Path to readback-pair gold dataset JSONL")
     parser.add_argument("--severity-weights", default=None, help="Optional JSON file with per-intent weights")
+    parser.add_argument("--write-report", action="store_true", help="Write timestamped JSON and markdown reports")
+    parser.add_argument("--report-dir", default="reports", help="Directory for report artifacts")
+    parser.add_argument("--report-label", default="evaluation", help="Label used in report filename")
     args = parser.parse_args()
 
     if args.readback_dataset:
@@ -247,6 +328,14 @@ def main() -> None:
     else:
         dataset = args.dataset or "data/gold/v0_slice.jsonl"
         report = evaluate_dataset(Path(dataset), severity_weights=_load_weights(args.severity_weights))
+
+    if args.write_report:
+        artifact_paths = write_report_artifacts(
+            report=report,
+            output_dir=Path(args.report_dir),
+            label=args.report_label,
+        )
+        report["report_artifacts"] = artifact_paths
 
     print(json.dumps(report, indent=2, sort_keys=False))
 

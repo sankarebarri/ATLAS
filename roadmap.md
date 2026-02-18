@@ -45,7 +45,7 @@ Legend:
 - [x] Add severity-weighted error reporting
 - [ ] Add CI regression job with thresholds
 - [ ] Block merge on regression threshold failures
-- [ ] Produce reproducible evaluation report artifact
+- [x] Produce reproducible evaluation report artifact
 
 ## Phase 3: Ambiguity and Hybrid Layer
 - [ ] Add hybrid disambiguation layer (rules first, ML assist second)
