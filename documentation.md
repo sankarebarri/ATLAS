@@ -9,6 +9,9 @@ This file is the day-to-day operating guide for building ATLAS and keeping proje
 - `docs/`: schema and domain docs
 - `roadmap.md`: checklist tracker (single source of truth for progress)
 
+## References
+- ML metrics glossary: `docs/ml-terms.md`
+
 ## Setup
 ```bash
 python -m venv .venv

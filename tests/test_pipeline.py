@@ -61,3 +61,26 @@ def test_parses_waypoint_hold_and_climb_rate() -> None:
     assert out["status"] == "ok"
     types = {item["type"] for item in out["instructions"]}
     assert {"waypoint", "hold", "climb_rate"}.issubset(types)
+
+
+def test_noisy_spoken_callsign_and_altitude() -> None:
+    out = parse_utterance("air france three four five descend flight level one eight zero")
+    assert out["callsign"] == "AFR345"
+    altitude = next(item for item in out["instructions"] if item["type"] == "altitude")
+    assert altitude["value"] == 180
+
+
+def test_noisy_spoken_frequency_and_runway() -> None:
+    out = parse_utterance("United 521 contact one two one decimal five runway two seven right")
+    types = {item["type"] for item in out["instructions"]}
+    assert {"frequency", "runway"}.issubset(types)
+    runway = next(item for item in out["instructions"] if item["type"] == "runway")
+    assert runway["value"] == "27R"
+
+
+def test_noisy_spoken_squawk_and_rate() -> None:
+    out = parse_utterance("AAL505 squawk seven thousand and DAL777 climb at fourteen hundred fpm")
+    squawk = next(item for item in out["instructions"] if item["type"] == "squawk")
+    assert squawk["value"] == "7000"
+    rate = next(item for item in out["instructions"] if item["type"] == "climb_rate")
+    assert rate["value"] == 1400

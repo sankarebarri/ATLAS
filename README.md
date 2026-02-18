@@ -58,6 +58,7 @@ python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
 
 ## Output Contract
 See `docs/contracts/atlas.intent.v0.1.md`.
+ML metric terms are in `docs/ml-terms.md`.
 
 ## Example Output
 ```json
