@@ -25,6 +25,7 @@ class ParseResult:
     callsign: str | None = None
     instructions: list[Instruction] = field(default_factory=list)
     confidence: float = 0.0
+    confidence_tier: str = "low"
     status: Status = "unknown"
     notes: list[str] = field(default_factory=list)
 
@@ -47,6 +48,7 @@ class ParseResult:
                 for item in self.instructions
             ],
             "confidence": round(self.confidence, 3),
+            "confidence_tier": self.confidence_tier,
             "status": self.status,
             "notes": self.notes,
         }

@@ -2,6 +2,12 @@ from __future__ import annotations
 
 from atlas.models import Instruction
 
+CONFIDENCE_POLICY = {
+    "high_threshold": 0.85,
+    "medium_threshold": 0.60,
+    "min_operational_threshold": 0.60,
+}
+
 
 def detect_conflict(instructions: list[Instruction]) -> bool:
     altitude_values = {
@@ -26,3 +32,21 @@ def score_confidence(instructions: list[Instruction], has_callsign: bool) -> flo
     if has_callsign:
         base += 0.05
     return min(base, 0.99)
+
+
+def confidence_tier(score: float) -> str:
+    if score >= CONFIDENCE_POLICY["high_threshold"]:
+        return "high"
+    if score >= CONFIDENCE_POLICY["medium_threshold"]:
+        return "medium"
+    return "low"
+
+
+def apply_confidence_policy(status: str, confidence: float) -> tuple[str, list[str], str]:
+    tier = confidence_tier(confidence)
+    notes: list[str] = [f"confidence_tier:{tier}"]
+
+    if status == "ok" and confidence < CONFIDENCE_POLICY["min_operational_threshold"]:
+        notes.append("low_confidence_threshold_breach")
+        return "ambiguous", notes, tier
+    return status, notes, tier

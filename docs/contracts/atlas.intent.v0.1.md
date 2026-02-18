@@ -12,6 +12,7 @@
   "callsign": "AFR345",
   "instructions": [],
   "confidence": 0.96,
+  "confidence_tier": "high",
   "status": "ok",
   "notes": []
 }
@@ -24,6 +25,7 @@
 - `callsign` (`string|null`, required): normalized callsign or `null`
 - `instructions` (`array`, required): ordered list of structured instructions
 - `confidence` (`number`, required): 0.0 to 1.0 confidence score
+- `confidence_tier` (`string`, required): one of `low`, `medium`, `high`
 - `status` (`string`, required): one of `ok`, `unknown`, `ambiguous`, `conflict`
 - `notes` (`array[string]`, optional): parse notes/warnings
 
@@ -61,6 +63,12 @@
 - `unknown`: no supported intent recognized
 - `ambiguous`: multiple competing parses with no deterministic tie-break
 - `conflict`: explicit contradiction detected in same utterance
+
+## Confidence policy
+- `high`: `confidence >= 0.85`
+- `medium`: `0.60 <= confidence < 0.85`
+- `low`: `confidence < 0.60`
+- operational threshold: if status is `ok` but confidence is below `0.60`, status is downgraded to `ambiguous` and note `low_confidence_threshold_breach` is emitted.
 
 ## Examples
 ### Example 1: altitude + speed

@@ -5,6 +5,7 @@ def test_parses_altitude_and_speed_with_callsign() -> None:
     out = parse_utterance("Air France 345 descend flight level 180, reduce speed to 250 knots")
     assert out["callsign"] == "AFR345"
     assert out["status"] == "ok"
+    assert out["confidence_tier"] in {"medium", "high"}
     assert [item["type"] for item in out["instructions"]] == ["altitude", "speed"]
     for item in out["instructions"]:
         assert item["trace"]["rule"] == item["type"]
@@ -16,6 +17,7 @@ def test_parses_heading_frequency_and_runway() -> None:
     out = parse_utterance("UAL12 turn left heading 270 and contact 121.5 runway 27L")
     assert out["callsign"] == "UAL12"
     assert out["status"] == "ok"
+    assert out["confidence_tier"] == "high"
     types = {item["type"] for item in out["instructions"]}
     assert {"heading", "frequency", "runway"}.issubset(types)
 
@@ -37,7 +39,15 @@ def test_marks_correction_as_replace() -> None:
 def test_unknown_when_no_supported_intent() -> None:
     out = parse_utterance("Hello aircraft how are you")
     assert out["status"] == "unknown"
+    assert out["confidence_tier"] == "low"
     assert out["instructions"] == []
+
+
+def test_low_confidence_ok_is_downgraded_to_ambiguous() -> None:
+    out = parse_utterance("descend flight level 180")
+    assert out["status"] == "ambiguous"
+    assert out["confidence_tier"] == "low"
+    assert "low_confidence_threshold_breach" in out["notes"]
 
 
 def test_parses_direct_waypoint_instruction() -> None:

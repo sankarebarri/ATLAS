@@ -95,7 +95,8 @@ git push
 - callsign extraction/normalization
 - deterministic parsing for altitude, speed, heading, frequency, runway, waypoint, squawk, hold, direct, climb_rate
 - per-instruction trace metadata (`rule`, `pattern`, `segment`) for parser auditability
-- fallback statuses: `ok`, `unknown`, `conflict`
+- confidence policy with tiers (`low`, `medium`, `high`) and low-confidence downgrade to `ambiguous`
+- fallback statuses: `ok`, `unknown`, `ambiguous`, `conflict`
 - basic amendment detection via `CORRECTION`
 - evaluation runner over gold JSONL datasets (`atlas.evaluate`)
 
