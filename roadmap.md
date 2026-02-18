@@ -37,10 +37,10 @@ Legend:
 - [x] Ensure no silent parse failures with traceable parser decisions
 
 ## Phase 2: Evaluation and CI Gates
-- [ ] Build first gold dataset slice (100-300 utterances)
-- [ ] Include amendment and edge-case examples in gold data
-- [ ] Build metric harness for intent precision/recall/F1
-- [ ] Build metric harness for slot extraction F1
+- [x] Build first gold dataset slice (100-300 utterances)
+- [x] Include amendment and edge-case examples in gold data
+- [x] Build metric harness for intent precision/recall/F1
+- [x] Build metric harness for slot extraction F1
 - [ ] Build readback mismatch metric
 - [ ] Add severity-weighted error reporting
 - [ ] Add CI regression job with thresholds
@@ -75,7 +75,7 @@ Legend:
 - [ ] Safety review for failure modes and fallback behavior
 
 ## Next Up (Immediate)
-- [ ] Build first gold slice in `data/gold/`
+- [x] Build first gold slice in `data/gold/`
 - [x] Add parser trace metadata to every instruction
 - [ ] Add CI workflow for tests + metrics
 - [x] Add waypoint and squawk parser support

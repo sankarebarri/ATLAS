@@ -48,6 +48,11 @@ Run a parse:
 python -m atlas.cli "Air France 345, descend flight level 180, reduce speed to 250 knots"
 ```
 
+Run evaluation on the gold slice:
+```bash
+python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
+```
+
 ## Core Pipeline
 `ingest -> normalize -> segment -> parse -> validate -> export`
 

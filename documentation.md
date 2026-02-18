@@ -26,6 +26,16 @@ python -m atlas.cli "Air France 345, descend flight level 180, reduce speed to 2
 pytest -q
 ```
 
+## Run Evaluation
+```bash
+python -m atlas.evaluate --dataset data/gold/v0_slice.jsonl
+```
+This reports:
+- intent precision/recall/F1
+- slot precision/recall/F1
+- status accuracy
+- callsign accuracy
+
 ## Development Workflow
 1. Pick one unchecked task in `roadmap.md`.
 2. Implement only that slice.
@@ -68,7 +78,7 @@ git push
 - per-instruction trace metadata (`rule`, `pattern`, `segment`) for parser auditability
 - fallback statuses: `ok`, `unknown`, `conflict`
 - basic amendment detection via `CORRECTION`
+- evaluation runner over gold JSONL datasets (`atlas.evaluate`)
 
 ## Known Gaps
-- no gold dataset yet
 - no CI metrics/regression gates yet
