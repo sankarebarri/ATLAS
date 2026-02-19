@@ -30,6 +30,7 @@ nav:
       - Conventions: phraseology-conventions.md
       - Examples: examples.md
   - Evaluation and Quality:
+      - Datasets: datasets.md
       - ML Terms: ml-terms.md
       - Data Quality and Adjudication: data-quality-adjudication.md
       - Adjudication Ownership Policy: adjudication-ownership-policy.md
